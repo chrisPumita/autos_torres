@@ -1,7 +1,7 @@
 <?php
 
-
-class FILE_CONTRATO
+include_once "CONEXION.php";
+class FILE_CONTRATO extends CONEXION
 {
     private $id_file_c;
     private $id_tipo_archivo_fk;
@@ -11,6 +11,15 @@ class FILE_CONTRATO
     private $ext;
     private $nivel_acceso;
     private $estatus;
+    private $ruta;
+
+    /**
+     * @return mixed
+     */
+    public function getRuta()
+    {
+        return $this->obtenerRuta();
+    }
 
     /**
      * @return mixed
@@ -140,5 +149,55 @@ class FILE_CONTRATO
         $this->estatus = $estatus;
     }
 
+    public function queryaddFileContrato()
+    {
+        $query = "INSERT INTO `file_contrato` (`id_file_c`, `id_tipo_archivo_fk`, `no_contrato_fk`, 
+                             `nombre`, `path`, `ext`, `nivel_acceso`, `estatus`) 
+                    VALUES (NULL, '".$this->getIdTipoArchivoFk()."', '".$this->getNoContratoFk()."', '"
+                            .$this->getNombre()."', '".$this->getPath()."', '".$this->getExt()."', '"
+                            .$this->getNivelAcceso()."', '1')";
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    public function queryremoveFileContrato()
+    {
+        $query = "DELETE FROM `file_contrato` WHERE ".$this->getIdFileC();
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    public function queryupdateNivelAcceso()
+    {
+        $query = "UPDATE `file_contrato` 
+                SET `nivel_acceso` = '".$this->getNivelAcceso()."' 
+                WHERE `file_contrato`.`id_file_c` = ".$this->getIdFileC();
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    private function obtenerRuta(){
+        $query="SELECT `path`  as ruta FROM `file_contrato` WHERE `id_file_c`=".$this->getIdFileC();
+        $this->connect();
+        $result = $this->getData($query);
+        $this->close();
+        return $result;
+    }
 
+    function queryConsultaDocumentosContrato()
+    {
+        $query = "select fc.id_file_c, fc.nombre , fc.nivel_acceso, fc.path, fc.ext, fc.nivel_acceso , ta.* 
+                    from file_contrato fc ,   tipo_archivo ta
+                    where ta.id_tipo_archivo = fc.id_tipo_archivo_fk  
+                    and fc.no_contrato_fk  = ".$this->getNoContratoFk();
+        $this->connect();
+        $result = $this->getData($query);
+        $this->close();
+        return $result;
+    }
+
+  
 }

@@ -4,11 +4,11 @@ include_once "I_PAGO.php";
 
 class PAGO extends CONEXION implements I_PAGO
 {
-    private $folio;
+    private $id_pago;
     private $no_contrato_fk;
     private $no_transaccion;
     private $concepto;
-    private $tipo;
+    private $tipo;//Credito,contado,apartado
     private $total;
     private $fecha_hora_creacion;
     private $no_pago;
@@ -18,18 +18,20 @@ class PAGO extends CONEXION implements I_PAGO
     /**
      * @return mixed
      */
-    public function getFolio()
+    public function getIdPago()
     {
-        return $this->folio;
+        return $this->id_pago;
     }
 
     /**
-     * @param mixed $folio
+     * @param mixed $id_pago
      */
-    public function setFolio($folio)
+    public function setIdPago($id_pago): void
     {
-        $this->folio = $folio;
+        $this->id_pago = $id_pago;
     }
+
+
 
     /**
      * @return mixed
@@ -175,47 +177,68 @@ class PAGO extends CONEXION implements I_PAGO
         $this->estatus_pago = $estatus_pago;
     }
 
-    public function consultaPago($folio)
+    public function  queryconsultaPago($no_contrato_fk)
     {
-        $query = "SELECT `folio`, `no_contrato_fk`, `no_transaccion`, `concepto`, `tipo`, `total`, 
-                `fecha_hora_creacion`, `no_pago`, `detalles`, `estatus_pago` 
-                FROM `pago` 
-                WHERE `no_contrato_fk`= ".$folio;
+        $filter = $no_contrato_fk>0?" AND p.no_contrato_fk = ".$no_contrato_fk : "";
+        $query = "SELECT p.id_pago, p.no_transaccion, p.concepto, p.total, p.saldo, p.fecha_limite_pago as fecha_pago, 
+                    c.fecha_primer_pago as pagar_antes_de, p.no_pago, p.estatus_pago, 
+		            case
+				        when p.estatus_pago = 0 and p.fecha_limite_pago > c.fecha_primer_pago then 'ADEUDO'
+				        when p.estatus_pago = 0  and p.fecha_limite_pago < c.fecha_primer_pago then 'PENDIENTE'
+				        when p.estatus_pago = 1 and p.fecha_limite_pago < c.fecha_primer_pago then 'PAGADO' 
+		                else 'DESCONOCIDO' 
+			        end as estatus_del_pago, p.tipo, p.no_contrato_fk, c.no_contrato, p.detalles
+                    FROM pago p, contrato c 
+                    where p.no_contrato_fk = c.no_contrato
+
+                    and p.no_contrato_fk = ".$no_contrato_fk." order by p.no_pago";
+
         $this->connect();
         $result = $this->getData($query);
         $this->close();
         return $result;
     }
 
-    public function addPAgo()
+    public function queryaddPago()
     {
-        $query = "INSERT INTO `pago` (`folio`, `no_contrato_fk`, `no_transaccion`, `concepto`, 
-                `tipo`, `total`, `fecha_hora_creacion`, `no_pago`, `detalles`, `estatus_pago`) 
-                VALUES (NULL, '".$this->getNoContratoFk()."', '".$this->getNoTransaccion()."', '"
+        $query = "INSERT INTO `pago` (`id_pago`, `no_contrato_fk`, `no_transaccion`, `concepto`, 
+                `tipo`, `total`, `fecha_limite_pago`, `no_pago`, `detalles`, `estatus_pago`) 
+                VALUES (".$this->getIdPago().", '".$this->getNoContratoFk()."', '".$this->getNoTransaccion()."', '"
                 .$this->getConcepto()."', '".$this->getTipo()."', '".$this->getTotal()."', '"
-                .date('Y-m-d H:i:s')."', '".$this->getNoPago()."', '".$this->getDetalles()."', '1')";
+                .$this->getFechaHoraCreacion()."', '".$this->getNoPago()."', '".$this->getDetalles().
+                "', '".$this->getEstatusPago()."')";
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
 
-    public function updatePago()
+    public function queryupdateEstatusPago($id_pago,$estatus_pago)
     {
         $query = "UPDATE `pago` 
-                SET `no_contrato_fk` = '".$this->getNoContratoFk()."', 
-                `no_transaccion` = '".$this->getNoTransaccion()."', 
-                `concepto` = '".$this->getConcepto()."', `tipo` = '".$this->getTipo()."', 
-                `total` = '".$this->getTotal()."', `no_pago` = '".$this->getNoPago()."', 
-                `detalles` = '".$this->getDetalles()."' WHERE `pago`.`folio` = ".$this->getFolio();
+                    SET `estatus_pago` = '".$estatus_pago."' 
+                    WHERE `pago`.`id_pago` = ".$id_pago;
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
 
-    public function updateEstatusPago($folio)
+    public function queryeliminaPago($folio)
     {
-        $query = "";
+        $query = "UPDATE `pago` 
+                    SET folio =folio*(-1) 
+                    WHERE `pago`.`folio` = ".$folio;
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+
+    public function consultaAbonos ($id_pago)
+    {
+        include_once "./ABONOS.php";
+        $objAbono = new ABONOS();
+        return $objAbono->queryconsultaAbonos($id_pago);
     }
 }

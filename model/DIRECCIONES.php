@@ -192,7 +192,7 @@ class DIRECCIONES extends CONEXION implements I_DIRECCIONES
         $this->estado = $estado;
     }
 
-    public function consultaDireccion($no_cliente)
+    public function queryconsultaDireccion($no_cliente)
     {
         $query = "SELECT `id_direccion`, `no_cliente_fk`, `calle`, `no_ext`, `no_int`, 
         `colonia`, `municipio`, `estado_republica`, `CP`, `referencias`, `estado` 
@@ -202,7 +202,7 @@ class DIRECCIONES extends CONEXION implements I_DIRECCIONES
         $this->close();
         return $result;
     }
-    public function addDireccion()
+    public function queryaddDireccion()
     {
         $query = "INSERT INTO `direcciones` (`id_direccion`, `no_cliente_fk`, `calle`, 
                 `no_ext`, `no_int`, `colonia`, `municipio`, `estado_republica`, `CP`, 
@@ -216,7 +216,7 @@ class DIRECCIONES extends CONEXION implements I_DIRECCIONES
         $this->close();
         return $result;
     }
-    public function updateDireccion()
+    public function queryupdateDireccion()
     {
         $query = "UPDATE `direcciones` 
                 SET `no_cliente_fk` = '".$this->getNoClienteFk()."', 
@@ -232,10 +232,10 @@ class DIRECCIONES extends CONEXION implements I_DIRECCIONES
         $this->close();
         return $result;
     }
-    public function deleteDireccion($id_direccion)
+    public function querydeleteDireccion()
     {
         $query = "DELETE FROM `direcciones` 
-                WHERE `direcciones`.`id_direccion` = ".$id_direccion;
+                WHERE `direcciones`.`id_direccion` = ".$this->getIdDireccion();
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();

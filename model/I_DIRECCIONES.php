@@ -3,8 +3,8 @@
 
 interface I_DIRECCIONES
 {
-    function consultaDireccion ($no_cliente);
-    function addDireccion();
-    function updateDireccion ();
-    function deleteDireccion($id_direccion);
+    function queryconsultaDireccion ($no_cliente);
+    function queryaddDireccion();
+    function queryupdateDireccion ();
+    function querydeleteDireccion();
 }

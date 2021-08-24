@@ -294,19 +294,11 @@ class EMPRESA extends CONEXION implements I_EMPRESA
         $this->licencia = $licencia;
     }
 
-    function listEmpleados()
-    {
-        include_once "../model/EMPLEADO.php";
-        $tempEmpleado = new EMPLEADO();
-        $empleados = $tempEmpleado->consultaEmpleados($this->getIdEmpresa());
-        return $empleados;
-    }
-
-    public function consultaEmpresa($id_empresa_fk)
+    public function queryconsultaEmpresa($id_empresa)
     {
         $concat="";
-        if ($id_empresa_fk!=0) {
-            $concat = " WHERE `id_empresa` = ".$id_empresa_fk;
+        if ($id_empresa!=0) {
+            $concat = " WHERE `id_empresa` = ".$id_empresa;
         }
         $query = "SELECT `id_empresa`, `rfc`, `nombre`, `calle`, `no_ext`, 
        `no_int`, `colonia`, `cp`, `de_mun`, `estado`, `telefono`, `correo`, 
@@ -318,24 +310,7 @@ class EMPRESA extends CONEXION implements I_EMPRESA
         return $result;
     }
 
-    public function addEmpresa()
-    {
-        $query = "INSERT INTO `empresa` (`id_empresa`, `rfc`, `nombre`, `calle`, 
-        `no_ext`, `no_int`, `colonia`, `cp`, `de_mun`, `estado`, `telefono`, 
-        `correo`, `sitio_web`, `path_logo`, `version`, `licencia`) 
-        VALUES ('".$this->getIdEmpresa()."', '".$this->getRfc()."', '"
-        .$this->getNombre()."', '".$this->getCalle()."', '".$this->getNoExt()."', '"
-        .$this->getNoInt()."', '".$this->getColonia()."', '".$this->getCp()."', '"
-        .$this->getDeMun()."', '".$this->getEstado()."', '".$this->getTelefono()."', '"
-        .$this->getCorreo()."', '".$this->getSitioWeb()."', '".$this->getPathLogo()."', '"
-        .$this->getVersion()."', '".$this->getLicencia()."')";
-        $this->connect();
-        $result = $this->executeInstruction($query);
-        $this->close();
-        return $result;
-    }
-
-    public function updateEmpresa()
+    public function queryupdateEmpresa()
     {
         $query = "UPDATE `empresa` SET `rfc` = '".$this->getRfc()."', 
         `nombre` = '".$this->getNombre()."', `calle` = '".$this->getCalle()."', 
@@ -352,14 +327,4 @@ class EMPRESA extends CONEXION implements I_EMPRESA
         return $result;
     }
 
-    public function deleteEmpresa($id_empresa_fk)
-    {
-        $query = "UPDATE `empresa` 
-                SET `id_empresa` = `id_empresa` *(-1)  
-                WHERE `empresa`.`id_empresa` = ".$id_empresa_fk;
-        $this->connect();
-        $result = $this->executeInstruction($query);
-        $this->close();
-        return $result;
-    }
 }

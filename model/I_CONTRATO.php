@@ -3,9 +3,10 @@
 
 interface I_CONTRATO
 {
-    function consultaContrato($no_contrato);
-    function consultaArchivosContrato($no_contrato);
-    function addContrato();
-    function updateEstatusContrato($no_contrato, $estatus);
-    function deleteContrato($no_contrato);
+    function consultaDetallesContrato($no_contrato);
+    function consultaPagosAbonosDeContrato($no_contrato);
+    function queryaddContrato();
+    function queryupdateEstatusContrato($no_contrato, $estatus);
+    function querydeleteContrato($no_contrato);
+
 }

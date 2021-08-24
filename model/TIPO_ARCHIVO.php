@@ -1,7 +1,7 @@
 <?php
 
-
-class TIPO_ARCHIVO
+include_once "CONEXION.php";
+class TIPO_ARCHIVO extends CONEXION
 {
     private $id_tipo_archivo;
     private $nombre;
@@ -89,5 +89,44 @@ class TIPO_ARCHIVO
         $this->estatus = $estatus;
     }
 
+    function consultaTiposArchivo(){
+        $query = "SELECT `id_tipo_archivo`, `nombre`, `tipo_Archivo`, `prioridad`, `estatus` 
+                  FROM `tipo_archivo` WHERE `estatus`>0 ORDER BY `tipo_archivo`.`nombre` ASC";
+        $this->connect();
+        $result = $this->getData($query);
+        $this->close();
+        return $result;
+    }
 
+    function queryAddTipoArchivo(){
+        $query="INSERT INTO `tipo_archivo` (`id_tipo_archivo`, `nombre`, `tipo_Archivo`, `prioridad`, `estatus`) VALUES (NULL, '".$this->getNombre().
+            "', '".$this->getTipoUso()."', '".$this->getPrioridad()."', '".$this->getEstatus()."')";
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    function queryUpdateTipoArchivo(){
+        $query="UPDATE `tipo_archivo` SET `nombre`='".$this->getNombre()."',`tipo_Archivo`='".$this->getIdTipoArchivo()."',
+                `prioridad`='".$this->getPrioridad()."'WHERE `id_tipo_archivo`=".$this->getIdTipoArchivo();
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    function queryDeleteTipoArchivo(){
+        $query="DELETE FROM `tipo_archivo` WHERE id_tipo_archivo= ".$this->getIdTipoArchivo();
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
+    function queryUpdateStatusTipoArchivo(){
+        $query="UPDATE `tipo_archivo` SET `estatus`='".$this->getEstatus()."' 
+        WHERE id_tipo_archivo=".$this->getIdTipoArchivo();
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
+    }
 }

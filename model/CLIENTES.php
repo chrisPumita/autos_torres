@@ -19,8 +19,25 @@ class CLIENTES extends CONEXION implements I_CLIENTES
     private $folio;
     private $tipo_cliente;
     private $estatus;
-    private $system_state;
 
+    /***********Agregacion **********/
+    private $list_direcciones;
+
+    /**
+     * @return mixed
+     */
+    public function getListDirecciones()
+    {
+        return $this->querydireccionCliente($this->getNoCliente());
+    }
+
+    /**
+     * @param mixed $list_direcciones
+     */
+    public function setListDirecciones($list_direcciones): void
+    {
+        $this->list_direcciones = $list_direcciones;
+    }
     /**
      * @return mixed
      */
@@ -261,32 +278,14 @@ class CLIENTES extends CONEXION implements I_CLIENTES
         $this->estatus = $estatus;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getSystemState()
-    {
-        return $this->system_state;
-    }
 
-    /**
-     * @param mixed $system_state
-     */
-    public function setSystemState($system_state)
+    public function queryconsultaCliente($no_cliente)
     {
-        $this->system_state = $system_state;
-    }
-
-    public function consultaCliente($no_cliente)
-    {
-        $concat="";
-        if ($no_cliente!=0) {
-            $concat = " AND `cliente`.`no_cliente` = ".$no_cliente;
-        }
+        $concat = $no_cliente > 0 ? " AND `cliente`.`no_cliente` = " . $no_cliente : " ";
         $query = "SELECT `no_cliente`, `nombre`, `apaterno`, `amaterno`, `telefono`,
             `celular`, `correo`, `subscripcion`, `empresa`, `rfc`, `fecha_registro`,
             `medio_identificación`, `folio`, `tipo_cliente`, `estatus`
-            FROM `cliente` WHERE system_state > 0 ".$concat." ORDER BY `apaterno`,`amaterno`";
+            FROM `cliente` WHERE no_cliente>0" . $concat . " ORDER BY `apaterno`,`amaterno`";
         $this->connect();
         $result = $this->getData($query);
         $this->close();
@@ -294,34 +293,33 @@ class CLIENTES extends CONEXION implements I_CLIENTES
 
     }
 
-    public function addCliente()
+    public function queryaddCliente()
     {
         $query = "INSERT INTO `cliente` (
                 `no_cliente`, `nombre`, `apaterno`, `amaterno`, `telefono`, `celular`, `correo`, 
                 `subscripcion`, `empresa`, `rfc`, `fecha_registro`, `medio_identificación`, 
-                `folio`, `tipo_cliente`, `estatus`, `system_state`) VALUES ('".$this->getNoCliente()."', '"
-                .$this->getNombre()."', '".$this->getApaterno()."', '".$this->getAmaterno()."', '"
-                .$this->getTelefono()."', '".$this->getCelular()."', '".$this->getCorreo()."', '"
-                .$this->getSubscripcion()."', '".$this->getEmpresa()."', '".$this->getRfc()."', '"
-                .date('Y-m-d H:i:s')."', '".$this->getMedioIdentificación()."', '"
-                .$this->getFolio()."', '".$this->getTipoCliente()."', '1', '1')";
+                `folio`, `tipo_cliente`, `estatus`) VALUES ('" . $this->getNoCliente() . "', '"
+            . $this->getNombre() . "', '" . $this->getApaterno() . "', '" . $this->getAmaterno() . "', '"
+            . $this->getTelefono() . "', '" . $this->getCelular() . "', '" . $this->getCorreo() . "', '"
+            . $this->getSubscripcion() . "', '" . $this->getEmpresa() . "', '" . $this->getRfc() . "', '"
+            . $this->getFechaRegistro() . "', '" . $this->getMedioIdentificación() . "', '"
+            . $this->getFolio() . "', '" . $this->getTipoCliente() . "', '1')";
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
 
-    public function updateCliente()
+    public function queryupdateCliente()
     {
         $query = "UPDATE `cliente` 
-                SET `nombre` = '".$this->getNombre()."', `apaterno` = '".$this->getApaterno()."', 
-                `amaterno` = '".$this->getAmaterno()."', `telefono` = '".$this->getTelefono()."', 
-                `celular` = '".$this->getCelular()."', `correo` = '".$this->getCorreo()."', 
-                `subscripcion` = '".$this->getSubscripcion()."', `empresa` = '".$this->getEmpresa()."', 
-                `rfc` = '".$this->getRfc()."', `medio_identificación` = '".$this->getMedioIdentificación()."', 
-                `folio` = '".$this->getFolio()."', `tipo_cliente` = '".$this->getTipoCliente()."', 
-                `estatus` = '".$this->getEstatus()."' 
-                WHERE `cliente`.`no_cliente` = ".$this->getNoCliente();
+                SET `nombre` = '" . $this->getNombre() . "', `apaterno` = '" . $this->getApaterno() . "', 
+                `amaterno` = '" . $this->getAmaterno() . "', `telefono` = '" . $this->getTelefono() . "', 
+                `celular` = '" . $this->getCelular() . "', `correo` = '" . $this->getCorreo() . "', 
+                `subscripcion` = '" . $this->getSubscripcion() . "', `empresa` = '" . $this->getEmpresa() . "', 
+                `rfc` = '" . $this->getRfc() . "', `medio_identificación` = '" . $this->getMedioIdentificación() . "', 
+                `folio` = '" . $this->getFolio() . "', `tipo_cliente` = '" . $this->getTipoCliente() . "'
+                 WHERE `cliente`.`no_cliente` = " . $this->getNoCliente();
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
@@ -329,23 +327,31 @@ class CLIENTES extends CONEXION implements I_CLIENTES
     }
 
 
-    public function deleteCliente($no_cliente)
+    public function querydeleteCliente($no_cliente)
     {
-        $query = "UPDATE `cliente` 
-                SET `system_state` = `system_state`*(-1) 
-                WHERE `cliente`.`no_cliente` = ".$no_cliente;
+        $query = "update cliente set no_cliente = no_cliente *-1 
+                where no_cliente =" . $no_cliente;
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
-    public function direccionCliente($no_cliente)
+
+    private function querydireccionCliente($no_cliente)
     {
         include_once "../model/DIRECCIONES.php";
         $tempDireccion = new DIRECCIONES();
-        $direccionCliente = $tempDireccion->consultaDireccion($no_cliente);
+        $direccionCliente = $tempDireccion->queryconsultaDireccion($no_cliente);
         return $direccionCliente;
     }
 
+    //************************ FUNCION PARA ACTUALIZAR EL STATUS DE UN CLIENTE ***********************//
+    public function queryUpdateStatus($idCliente){
+        $query="update cliente set estatus=0 where no_cliente =".$idCliente;
+        $this->connect();
+        $result = $this->executeInstruction($query);
+        $this->close();
+        return $result;
 
+    }
 }

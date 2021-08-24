@@ -37,7 +37,6 @@ $(document).ready(function () {
           type: "POST",
           url: "../control/client-add.php",
           data: {
-            folio_cliente: $("#folio_cliente").val(),
             nombre_cliente: $("#nombre_cliente").val(),
             apaterno_cliente: $("#apaterno_cliente").val(),
             amaterno_cliente: $("#amaterno_cliente").val(),
@@ -45,9 +44,10 @@ $(document).ready(function () {
             celular_cliente: $("#celular_cliente").val(),
             correo_cliente: $("#correo_cliente").val(),
             subscripcion_cliente: $("#subscripcion_cliente").val(),
-            empresa_cliente: $("#empresa_cliente").val(),
             medio_identificación_cliente: $("#medio_identificación_cliente").val(),
+            folio_cliente: $("#folio_cliente").val(),
             tipo_cliente: $("#tipo_cliente").val(),
+            empresa_cliente: $("#empresa_cliente").val(),
             rfc_cliente: $("#rfc_cliente").val(),
             estatus_cliente: "1",
             accion: 1,
@@ -103,10 +103,10 @@ $(document).ready(function () {
             celular_cliente: $("#celular_cliente").val(),
             correo_cliente: $("#correo_cliente").val(),
             subscripcion_cliente: $("#subscripcion_cliente").val(),
-            empresa_cliente: $("#empresa_cliente").val(),
             medio_identificación_cliente: $("#medio_identificación_cliente").val(),
             folio_cliente: $("#folio_cliente").val(),
             tipo_cliente: $("#tipo_cliente").val(),
+            empresa_cliente: $("#empresa_cliente").val(),
             rfc_cliente: $("#rfc_cliente").val(),
             estatus_cliente: $("#estatus").val(),
             accion: 0,
@@ -185,9 +185,9 @@ $(document).ready(function () {
         let templateCompra = "";
         let template_page = "";
         let cont = 0;
-        console.log(response);
+        /*console.log(response);
         console.log("******************");
-        console.log(obj_result);
+        console.log(obj_result);*/
         obj_result.forEach((obj_result) => {
           cont++;
           template += `
@@ -376,10 +376,8 @@ function cargaDatosClienteCompra(idClienteSelect) {
     type: "POST",
     data: { id: idClienteSelect },
     success: function (response) {
-      console.log(response);
       //COnvertimos el string a JSON
       let obj_users = JSON.parse(response);
-      console.log(obj_users);
       let obj = obj_users[0];
       $("#nombreCliente").val(obj.nombre+" "+obj.apaterno+" "+obj.amaterno);
       $("#contacto").val(obj.telefono+" / "+obj.celular);

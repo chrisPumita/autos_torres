@@ -151,22 +151,6 @@ class EMPLEADO extends CONEXION implements I_EMPLEADO
     /**
      * @return mixed
      */
-    public function getFechaRegistro()
-    {
-        return $this->fecha_registro;
-    }
-
-    /**
-     * @param mixed $fecha_registro
-     */
-    public function setFechaRegistro($fecha_registro)
-    {
-        $this->fecha_registro = $fecha_registro;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCorreoUser()
     {
         return $this->correo_user;
@@ -260,7 +244,7 @@ class EMPLEADO extends CONEXION implements I_EMPLEADO
         $this->system_state = $system_state;
     }
 
-    public function consultaEmpleado($no_empleado)
+    public function queryconsultaEmpleado($no_empleado)
     {
         $concat="";
         if ($no_empleado!=0) {
@@ -270,34 +254,17 @@ class EMPLEADO extends CONEXION implements I_EMPLEADO
                 empl.`apaterno`, empl.`amaterno`, empl.`telefono`, empl.`celular`, 
                 empl.`sexo`, empl.`fecha_registro`, empl.`correo_user`, 
                 empl.`pw`, empl.`puesto`, empl.`nivel_acceso`, empl.`estatus`, 
-                empl.`system_state`,  empr.`id_empresa`, empr.`nombre` AS nombre_empresa
+                empr.`id_empresa`, empr.`nombre` AS nombre_empresa
                 FROM `empleado` empl, `empresa` empr
                 WHERE empr.`id_empresa` = empl.`id_empresa_fk` 
-                AND empl.`system_state`>0 ".$concat;
+                AND empl.no_empleado > 0 ".$concat;
         $this->connect();
         $result = $this->getData($query);
         $this->close();
         return $result;
     }
 
-    public function consultaEmpleados($id_empresa_fk)
-    {
-        $query = "SELECT empl.`no_empleado`, empl.`id_empresa_fk`, empl.`nombre`, 
-                empl.`apaterno`, empl.`amaterno`, empl.`telefono`, empl.`celular`, 
-                empl.`sexo`, empl.`fecha_registro`, empl.`correo_user`, empl.`pw`, 
-                empl.`puesto`, empl.`nivel_acceso`, empl.`estatus`, 
-                empl.`system_state`, empr.`id_empresa`, empr.`nombre` AS nombre_empresa  
-                FROM `empleado` empl, `empresa` empr  
-                WHERE empr.`id_empresa`= empl.`id_empresa_fk`
-                AND empl.`estatus` > 0
-                AND empl.`id_empresa_fk` = ".$id_empresa_fk;
-        $this->connect();
-        $result = $this->getData($query);
-        $this->close();
-        return $result;
-    }
-
-    public function addEmpleado()
+    public function queryaddEmpleado()
     {
         $query = "INSERT INTO `empleado` (
                 `no_empleado`, `id_empresa_fk`, `nombre`, `apaterno`, `amaterno`, `telefono`, 
@@ -316,14 +283,13 @@ class EMPLEADO extends CONEXION implements I_EMPLEADO
         return $result;
     }
 
-    public function updateEmpleado()
+    public function queryupdateEmpleado()
     {
         $query = "UPDATE `empleado` 
-        SET `id_empresa_fk` = '".$this->getIdEmpresaFk()."', `nombre` = '".$this->getNombre()."', 
+        SET `nombre` = '".$this->getNombre()."', 
         `apaterno` = '".$this->getApaterno()."', `amaterno` = '".$this->getAmaterno()."', 
         `telefono` = '".$this->getTelefono()."', `celular` = '".$this->getCelular()."', 
-        `sexo` = '".$this->getSexo()."', `correo_user` = '".$this->getCorreoUser()."', 
-        `puesto` = '".$this->getPuesto()."', `nivel_acceso` = '".$this->getNivelAcceso()."' 
+        `sexo` = '".$this->getSexo()."', `correo_user` = '".$this->getCorreoUser()."' 
         WHERE `empleado`.`no_empleado` = ".$this->getNoEmpleado();
         $this->connect();
         $result = $this->executeInstruction($query);
@@ -331,47 +297,60 @@ class EMPLEADO extends CONEXION implements I_EMPLEADO
         return $result;
     }
 
-    public function updatePw($no_empleado, $pwd)
+    public function queryupdatePw()
     {
         $query = "UPDATE `empleado` 
-        SET `pw` = '".md5($pwd)."' 
-        WHERE `empleado`.`no_empleado` = ".$no_empleado ;
+        SET `pw` = '".$this->getPw()."' 
+        WHERE `empleado`.`no_empleado` = ".$this->getNoEmpleado() ;
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
 
-    public function updateStatusEmpleado($no_empleado, $estatus)
+    public function queryUpdateStatusE()
     {
         $query = "UPDATE `empleado` 
-        SET `estatus` = '".$estatus."'
-        WHERE `empleado`.`no_empleado` = ".$no_empleado;
+        SET `estatus` = ".$this->getEstatus()."
+        WHERE `empleado`.`no_empleado` = ".$this->getNoEmpleado();
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
 
-    public function deleteEmpleado($no_empleado)
+    public function queryverificaCountUser()
+    {
+        $query = "SELECT empl.`no_empleado`, empl.`id_empresa_fk`, empl.`nombre`, 
+                empl.`apaterno`, empl.`amaterno`, empl.`telefono`, empl.`celular`, 
+                empl.`sexo`, empl.`fecha_registro`, empl.`correo_user`, 
+                empl.`pw`, empl.`puesto`, empl.`nivel_acceso`, empl.`estatus`, 
+                empr.`id_empresa`, empr.`nombre` AS nombre_empresa
+                FROM `empleado` empl, `empresa` empr
+                WHERE empr.`id_empresa` = empl.`id_empresa_fk`
+                AND `correo_user` = '".$this->getCorreoUser()."' 
+                AND `pw` = '".$this->getPw()."' AND `estatus` = 1 ";
+        $this->connect();
+        $result = $this->getData($query);
+        $this->close();
+        return $result;
+    }
+
+    public function queryeliminarEmpleado($no_empleado)
     {
         $query = "UPDATE `empleado` 
-                SET `system_state` = `system_state`*(-1) 
+                SET `no_empleado` = no_empleado*(-1) 
                 WHERE `empleado`.`no_empleado` = ".$no_empleado;
         $this->connect();
         $result = $this->executeInstruction($query);
         $this->close();
         return $result;
     }
-
-    public function verificaCountUser()
-    {
-        $query = "SELECT `no_empleado`, `nombre`, `apaterno`, `amaterno`, 
-        `telefono`, `celular`, `sexo`, `fecha_registro`, `correo_user`, `pw`, `puesto`, `nivel_acceso`, `estatus` 
-            FROM `empleado` WHERE `correo_user` = '".$this->getCorreoUser()."' 
-            AND `pw` = '".$this->getPw()."' AND `estatus` = 1 ";
+    function modifyPw(){
+        $query="UPDATE `empleado` SET `pw` = '".$this->getPw()."' 
+        WHERE `empleado`.`no_empleado` = ".$this->getNoEmpleado();
         $this->connect();
-        $result = $this->getData($query);
+        $result=$this->executeInstruction($query);
         $this->close();
         return $result;
     }
